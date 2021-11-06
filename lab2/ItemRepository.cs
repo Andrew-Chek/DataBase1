@@ -114,28 +114,6 @@ namespace lab2
             connection.Close();
             return count;
         }
-        public List<Item> GetPage(int pageNumber, int pageLength)
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            int num = pageNumber * pageLength - pageLength;
-            command.CommandText = "SELECT * FROM items LIMIT @numOfEl OFFSET @passEls";
-            command.Parameters.AddWithValue("numOfEl", pageLength);
-            command.Parameters.AddWithValue("passEls", num);
-            NpgsqlDataReader reader = command.ExecuteReader();
-            List<Item> list = new List<Item>();
-            while(reader.Read())
-            {
-                Item item = new Item();
-                item.item_id = reader.GetInt32(0);
-                item.cost = reader.GetDouble(1);
-                item.availability = reader.GetBoolean(2);
-                item.name = reader.GetString(3);
-                list.Add(item);
-            }
-            connection.Close();
-            return list;
-        }
         public long GetSearchCount(string value, bool bVal, int a, int b)
         {
             if(string.IsNullOrEmpty(value))
@@ -145,7 +123,7 @@ namespace lab2
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM items WHERE name LIKE '%' || @value || '%' 
-            AND cost BETWEEN @a AND @b AND availability = @bVal";
+                AND cost BETWEEN @a AND @b AND availability = @bVal";
             command.Parameters.AddWithValue("value", value);
             command.Parameters.AddWithValue("bVal", bVal);
             command.Parameters.AddWithValue("a", a);
@@ -154,39 +132,16 @@ namespace lab2
             connection.Close();
             return num;
         }
-        public double GetPagesCount(int pageLength)
+        public List<Item> GetAllSearch(string value, bool bVal, int a, int b)
         {
-            if(pageLength < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(pageLength));
-            }
-            return (double)GetCount() / (double) pageLength;
-        }
-        public List<Item> GetSearchPage(string value, bool bVal, int a, int b, int pageNumber, int pageLength)
-        {
-            if(string.IsNullOrEmpty(value))
-            {
-                return this.GetPage(pageNumber, pageLength);
-            }
-            if(pageNumber < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(pageNumber));
-            }
-            if(pageLength < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(pageLength));
-            }
-            int num = pageNumber * pageLength - pageLength;
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT COUNT(*) FROM items WHERE name LIKE '%' || @value || '%' 
-            AND cost BETWEEN @a AND @b AND availability = @bVal LIMIT @numOfEl OFFSET @passEls";
+            command.CommandText = @"SELECT * FROM items WHERE name LIKE '%' || @value || '%' 
+                AND cost BETWEEN @a AND @b AND availability = @bVal";
             command.Parameters.AddWithValue("value", value);
             command.Parameters.AddWithValue("bVal", bVal);
             command.Parameters.AddWithValue("a", a);
             command.Parameters.AddWithValue("b", b);
-            command.Parameters.AddWithValue("numOfEl", pageLength);
-            command.Parameters.AddWithValue("passEls", num);
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Item> list = new List<Item>();
             while(reader.Read())
@@ -200,10 +155,6 @@ namespace lab2
             }
             connection.Close();
             return list;
-        }
-        public double GetSearchPagesCount(string value, bool bVal, int a, int b, int pagelength)
-        {
-            return (double)GetSearchCount(value, bVal, a, b) / (double) pagelength;
         }
     }
 }
