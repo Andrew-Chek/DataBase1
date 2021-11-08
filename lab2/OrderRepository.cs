@@ -121,30 +121,30 @@ namespace lab2
             connection.Close();
             return count;
         }
-        public long GetSearchCount(int c, int d, int a, int b)
+        public long GetSearchCount(int[] measures2, int[] measures1)
         {
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM orders WHERE us_id BETWEEN @c AND @d 
             AND cost BETWEEN @a AND @b";
-            command.Parameters.AddWithValue("c", c);
-            command.Parameters.AddWithValue("d", d);
-            command.Parameters.AddWithValue("a", a);
-            command.Parameters.AddWithValue("b", b);
+            command.Parameters.AddWithValue("c", measures2[0]);
+            command.Parameters.AddWithValue("d", measures2[1]);
+            command.Parameters.AddWithValue("a", measures1[0]);
+            command.Parameters.AddWithValue("b", measures1[1]);
             long num = (long)command.ExecuteScalar();
             connection.Close();
             return num;
         }
-        public List<Order> GetAllSearch(int c, int d, int a, int b)
+        public List<Order> GetAllSearch(int[] measures2, int[] measures1)
         {
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT * FROM orders WHERE us_id BETWEEN @c AND @d 
             AND cost BETWEEN @a AND @b";
-            command.Parameters.AddWithValue("c", c);
-            command.Parameters.AddWithValue("d", d);
-            command.Parameters.AddWithValue("a", a);
-            command.Parameters.AddWithValue("b", b);
+            command.Parameters.AddWithValue("c", measures2[0]);
+            command.Parameters.AddWithValue("d", measures2[1]);
+            command.Parameters.AddWithValue("a", measures1[0]);
+            command.Parameters.AddWithValue("b", measures1[1]);
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Order> list = new List<Order>();
             while(reader.Read())

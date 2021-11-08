@@ -114,7 +114,7 @@ namespace lab2
             connection.Close();
             return count;
         }
-        public long GetSearchCount(string value, bool bVal, int a, int b)
+        public long GetSearchCount(string value, bool bVal, int[] measures)
         {
             if(string.IsNullOrEmpty(value))
             {
@@ -126,13 +126,13 @@ namespace lab2
                 AND cost BETWEEN @a AND @b AND availability = @bVal";
             command.Parameters.AddWithValue("value", value);
             command.Parameters.AddWithValue("bVal", bVal);
-            command.Parameters.AddWithValue("a", a);
-            command.Parameters.AddWithValue("b", b);
+            command.Parameters.AddWithValue("a", measures[0]);
+            command.Parameters.AddWithValue("b", measures[1]);
             long num = (long)command.ExecuteScalar();
             connection.Close();
             return num;
         }
-        public List<Item> GetAllSearch(string value, bool bVal, int a, int b)
+        public List<Item> GetAllSearch(string value, bool bVal, int[] measures)
         {
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
@@ -140,8 +140,8 @@ namespace lab2
                 AND cost BETWEEN @a AND @b AND availability = @bVal";
             command.Parameters.AddWithValue("value", value);
             command.Parameters.AddWithValue("bVal", bVal);
-            command.Parameters.AddWithValue("a", a);
-            command.Parameters.AddWithValue("b", b);
+            command.Parameters.AddWithValue("a", measures[0]);
+            command.Parameters.AddWithValue("b", measures[1]);
             NpgsqlDataReader reader = command.ExecuteReader();
             List<Item> list = new List<Item>();
             while(reader.Read())

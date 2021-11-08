@@ -1,5 +1,5 @@
 ﻿using static System.Console;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 namespace lab2
 {
@@ -148,6 +148,95 @@ namespace lab2
                             WriteLine("Id should be a number");
                         }
                     }
+                    else if(command.StartsWith('s'))
+                    {
+                        Write("Enter a search subline: ");
+                        string value = ReadLine();
+                        int[] measures1;
+                        while(true)
+                        {
+                            Write("Enter measures for cost for order and item: ");
+                            string measure1 = ReadLine();
+                            measures1 = GetMeasures(measure1);
+                            if(measures1[0] != measures1[1])
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                WriteLine("Wrong measures, please enter again!");
+                            }
+                        }
+                        int[] measures2;
+                        while(true)
+                        {
+                            Write("Enter measures for us_id for order and item: ");
+                            string measure2 = ReadLine();
+                            measures2 = GetMeasures(measure2);
+                            if(measures2[0] != measures2[1])
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                WriteLine("Wrong measures, please enter again!");
+                            }
+                        }
+                        bool av;
+                        while(true)
+                        {
+                            Write("Enter bool value for item: ");
+                            string boolean = ReadLine();
+                            if(Controller.CheckBoolean(boolean))
+                            {
+                                av = bool.Parse(boolean);
+                                break;
+                            }
+                            else
+                            {
+                                WriteLine("Wrong value, please enter again!");
+                            }
+                        }
+                        Write("Serch Items: ");
+                        List<Item> searchIts = items.GetAllSearch(value, av, measures1);
+                        Item[] itArr = new Item[searchIts.Count];
+                        searchIts.CopyTo(itArr);
+                        if(itArr.Length == 0)
+                        {
+                            Write("no in this request");
+                        }
+                        WriteLine();
+                        for(int i = 0; i < itArr.Length; i++)
+                        {
+                            WriteLine(itArr[i].ToString());
+                        }
+                        List<Order> searchOrds = orders.GetAllSearch(measures2, measures1);
+                        Order[] ordArr = new Order[searchOrds.Count];
+                        searchOrds.CopyTo(ordArr);
+                        Write("Serch Orders: ");
+                        if(ordArr.Length == 0)
+                        {
+                            Write("no in this request");
+                        }
+                        WriteLine();
+                        for(int i = 0; i < ordArr.Length; i++)
+                        {
+                            WriteLine(ordArr[i].ToString());
+                        }
+                        Write("Serch Users: ");
+                        List<User> searchUsrs = users.GetAllSearch(value);
+                        User[] userArr = new User[searchUsrs.Count];
+                        searchUsrs.CopyTo(userArr);
+                        if(userArr.Length == 0)
+                        {
+                            Write("no in this request");
+                        }
+                        WriteLine();
+                        for(int i = 0; i < userArr.Length; i++)
+                        {
+                            WriteLine(userArr[i].ToString());
+                        }
+                    }
                     else if(command == "exit" || command == "")
                     {
                         WriteLine("Bye.");
@@ -243,6 +332,22 @@ namespace lab2
             Generation gen = new Generation(connString);
             ConsoleLog log = new ConsoleLog(items, orders, users, gen);
             log.ProcessCommands(connString);
+        }
+        static int[] GetMeasures(string value)
+        {
+            int[] arr = new int[2];
+            string[] array = value.Split(',');
+            if(array.Length != 2)
+            {
+                return arr;
+            }
+            if(Controller.CheckInteger(array[0]) && Controller.CheckInteger(array[1]) 
+                && int.Parse(array[1]) > int.Parse(array[0]))
+            {
+                arr[0] = int.Parse(array[0]);
+                arr[1] = int.Parse(array[1]);
+            }
+            return arr;
         }
         static string GetValue(string command, int index)
         {
