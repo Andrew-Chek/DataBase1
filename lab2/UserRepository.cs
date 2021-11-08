@@ -6,9 +6,9 @@ namespace lab2
     public class UserRepository
     {
         private NpgsqlConnection connection;
-        public UserRepository(string databaseFileName)
+        public UserRepository(string connString)
         {
-            this.connection = new NpgsqlConnection($"Data Source={databaseFileName}");
+            this.connection = new NpgsqlConnection(connString);
         }
         public User GetById(int id)
         {
@@ -23,6 +23,7 @@ namespace lab2
                 user.user_id = reader.GetInt32(0);
                 user.name = reader.GetString(1);
                 user.password = reader.GetString(2);
+                connection.Close();
                 return user;
             }
             else 

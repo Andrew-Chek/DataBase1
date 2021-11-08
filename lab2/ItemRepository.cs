@@ -30,7 +30,7 @@ namespace lab2
             else 
             {
                 connection.Close();
-                throw new Exception("there is no items with such id");
+                throw new Exception("there are no items with such id");
             }
         }
         public int DeleteById(int id)

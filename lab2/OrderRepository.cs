@@ -42,6 +42,16 @@ namespace lab2
             connection.Close();
             return nChanged;
         }
+        public int DeleteByUserId(int id)
+        {
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM orders WHERE us_id = @id";
+            command.Parameters.AddWithValue("id", id);
+            int nChanged = command.ExecuteNonQuery();
+            connection.Close();
+            return nChanged;
+        }
         public int DeleteByIdOrdersItems(int id)
         {
             connection.Open();
