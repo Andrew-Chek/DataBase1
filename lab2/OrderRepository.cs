@@ -116,38 +116,6 @@ namespace lab2
             connection.Close();
             return (int)newId;
         }
-        public long GetCount()
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT COUNT(*) FROM orders";
-            long count = (long)command.ExecuteScalar();
-            return count;
-        }
-        public long GetItemsInOrdersCount(int item_id)
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT COUNT(*) FROM orders_items WHERE item_id = @item_id";
-            command.Parameters.AddWithValue("item_id", item_id);
-            long count = (long)command.ExecuteScalar();
-            connection.Close();
-            return count;
-        }
-        public long GetSearchCount(int[] measures2, int[] measures1)
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT COUNT(*) FROM orders WHERE us_id BETWEEN @c AND @d 
-            AND cost BETWEEN @a AND @b";
-            command.Parameters.AddWithValue("c", measures2[0]);
-            command.Parameters.AddWithValue("d", measures2[1]);
-            command.Parameters.AddWithValue("a", measures1[0]);
-            command.Parameters.AddWithValue("b", measures1[1]);
-            long num = (long)command.ExecuteScalar();
-            connection.Close();
-            return num;
-        }
         public List<Order> GetAllSearch(int[] measures2, int[] measures1)
         {
             connection.Open();

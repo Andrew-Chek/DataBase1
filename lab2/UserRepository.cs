@@ -69,30 +69,6 @@ namespace lab2
             connection.Close();
             return nChanged == 1;
         }
-        public long GetCount()
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT COUNT(*) FROM users";
-            long num = (long)command.ExecuteScalar();
-            connection.Close();
-            return num;
-        }
-        public long GetSearchCount(string value)
-        {
-            if(string.IsNullOrEmpty(value))
-            {
-                return this.GetCount();
-            }
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT COUNT(*) FROM users WHERE name LIKE '%' || @value || '%' 
-                AND password LIKE '%' || @value || '%'";
-            command.Parameters.AddWithValue("value", value);
-            long num = (long)command.ExecuteScalar();
-            connection.Close();
-            return num;
-        }
         public List<User> GetAllSearch(string value)
         {
             connection.Open();

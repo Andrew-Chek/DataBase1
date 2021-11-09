@@ -43,16 +43,6 @@ namespace lab2
             connection.Close();
             return nChanged;
         }
-        public int DeleteByIdOrdersItems(int id)
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM orders_items WHERE item_id = @id";
-            command.Parameters.AddWithValue("id", id);
-            int nChanged = command.ExecuteNonQuery();
-            connection.Close();
-            return nChanged;
-        }
         public object Insert(Item item)
         {
             connection.Open();
@@ -82,55 +72,6 @@ namespace lab2
             int nChanged = command.ExecuteNonQuery();
             connection.Close();
             return nChanged == 1;
-        }
-        public long InsertOrderItems(int order_id, int item_id)
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = 
-            @"
-                INSERT INTO orders_items (ord_id, item_id) 
-                VALUES (@order_id, @item_id);
-            ";
-            command.Parameters.AddWithValue("order_id", order_id);
-            command.Parameters.AddWithValue("item_id", item_id);
-            return order_id;
-        }
-        public long GetCount()
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT COUNT(*) FROM items";
-            long count = (long)command.ExecuteScalar();
-            return count;
-        }
-        public long GetItemsInOrdersCount(int item_id)
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT COUNT(*) FROM orders_items WHERE item_id = @item_id";
-            command.Parameters.AddWithValue("item_id", item_id);
-            long count = (long)command.ExecuteScalar();
-            connection.Close();
-            return count;
-        }
-        public long GetSearchCount(string value, bool bVal, int[] measures)
-        {
-            if(string.IsNullOrEmpty(value))
-            {
-                return this.GetCount();
-            }
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT COUNT(*) FROM items WHERE name LIKE '%' || @value || '%' 
-                AND cost BETWEEN @a AND @b AND availability = @bVal";
-            command.Parameters.AddWithValue("value", value);
-            command.Parameters.AddWithValue("bVal", bVal);
-            command.Parameters.AddWithValue("a", measures[0]);
-            command.Parameters.AddWithValue("b", measures[1]);
-            long num = (long)command.ExecuteScalar();
-            connection.Close();
-            return num;
         }
         public List<Item> GetAllSearch(string value, bool bVal, int[] measures)
         {
