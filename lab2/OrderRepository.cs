@@ -56,8 +56,19 @@ namespace lab2
         {
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM orders_items WHERE item_id = @id";
+            command.CommandText = "DELETE FROM orders_items WHERE ord_id = @id";
             command.Parameters.AddWithValue("id", id);
+            int nChanged = command.ExecuteNonQuery();
+            connection.Close();
+            return nChanged;
+        }
+        public int DeleteByOrdersItems(int ord_id, int item_id)
+        {
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM orders_items WHERE ord_id = @id AND item_id = @it_id";
+            command.Parameters.AddWithValue("id", ord_id);
+            command.Parameters.AddWithValue("it_id", item_id);
             int nChanged = command.ExecuteNonQuery();
             connection.Close();
             return nChanged;
@@ -90,18 +101,20 @@ namespace lab2
             connection.Close();
             return nChanged == 1;
         }
-        public long InsertOrderItems(int order_id, int item_id)
+        public int InsertOrderItems(int order_id, int item_id)
         {
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = 
             @"
                 INSERT INTO orders_items (ord_id, item_id) 
-                VALUES (@order_id, @item_id);
+                VALUES (@order_id, @item_id) RETURNING ord_id;
             ";
             command.Parameters.AddWithValue("order_id", order_id);
             command.Parameters.AddWithValue("item_id", item_id);
-            return order_id;
+            object newId = (object)command.ExecuteScalar();
+            connection.Close();
+            return (int)newId;
         }
         public long GetCount()
         {

@@ -54,6 +54,7 @@ namespace lab2
             command.Parameters.AddWithValue("name", user.name);
             command.Parameters.AddWithValue("password", user.password);
             object newId = command.ExecuteScalar();
+            connection.Close();
             return newId;
         }
         public bool Update(User user)

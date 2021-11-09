@@ -6,18 +6,45 @@ namespace lab2
     public class Generation
     {
         private NpgsqlConnection connection;
-        private string connString;
-        public Generation(string connString)
+        private ItemRepository items;
+        private OrderRepository orders;
+        private UserRepository users;
+        public Generation(string connString, ItemRepository items, OrderRepository orders, UserRepository users)
         {
-            this.connString = connString;
             this.connection = new NpgsqlConnection(connString);
+            this.items = items;
+            this.orders = orders;
+            this.users = users;
         }
-        public void Generate(int num)
+        public void GenerateItems(int num)
         {
-            ItemRepository repo = new ItemRepository(this.connString);
-            List<string> names = new List<string>();
-            List<double> costs = new List<double>();
-            List<bool> availabilities = new List<bool>();
+            string[] names = GenerateStrings(num);
+            double[] costs = GenerateDoubles(num);
+            Random rand = new Random();
+            bool[] availRepo = new bool[num];
+            for(int i = 0; i < num; i++)
+            {
+                availRepo[i] = rand.Next(1, 100) > 50;
+            }
+            for(int i = 0; i < num; i ++)
+            {
+                Item item = new Item(names[i], costs[i], availRepo[i]);
+                items.Insert(item);
+            }
+        }
+        public void GenerateOrders(int num)
+        {
+            int[] us_ids = GenerateUsers(num);
+            double[] costs = GenerateDoubles(num);
+            for(int i = 0; i < num; i ++)
+            {
+                Order order = new Order(costs[i], us_ids[i]);
+                orders.Insert(order);
+            }
+        }
+        public string[] GenerateStrings(int num)
+        {
+            List<string> strings = new List<string>();
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = @"select chr(trunc(65+random()*25)::int) 
@@ -27,35 +54,41 @@ namespace lab2
             NpgsqlDataReader reader = command.ExecuteReader();
             while(reader.Read())
             {
-                names.Add(reader.GetString(0));
+                strings.Add(reader.GetString(0));
             }
             connection.Close();
+            string[] stringRepo = new string[strings.Count];
+            strings.CopyTo(stringRepo);
+            return stringRepo;
+        }
+        public double[] GenerateDoubles(int num)
+        {
+            List<double> doubles = new List<double>();
             connection.Open();
             NpgsqlCommand command1 = connection.CreateCommand();
-            command1.CommandText = "select trunc(random()*10000)::int from generate_series(1,@num)";
+            command1.CommandText = "select trunc(random()*100000)::int from generate_series(1,@num)";
             command1.Parameters.AddWithValue("num", num);
             NpgsqlDataReader reader1 = command1.ExecuteReader();
             while(reader1.Read())
             {
-                costs.Add(reader1.GetInt32(0));
-            }
-            Random rand = new Random();
-            for(int i = 0; i < num; i++)
-            {
-                availabilities.Add(rand.Next(1, 100) > 50);
-            }
-            string[] nameRepo = new string[names.Count];
-            double[] costRepo = new double[costs.Count];
-            bool[] availRepo = new bool[availabilities.Count];
-            names.CopyTo(nameRepo);
-            costs.CopyTo(costRepo);
-            availabilities.CopyTo(availRepo);
-            for(int i = 0; i < num; i ++)
-            {
-                Item item = new Item(nameRepo[i], costRepo[i], availRepo[i]);
-                repo.Insert(item);
+                doubles.Add(reader1.GetInt32(0));
             }
             connection.Close();
+            double[] doubRepo = new double[doubles.Count];
+            doubles.CopyTo(doubRepo);
+            return doubRepo;
+        }
+        public int[] GenerateUsers(int num)
+        {
+            int[] array = new int[num];
+            string[] names = GenerateStrings(num);
+            string[] passwords = GenerateStrings(num);
+            for(int i = 0; i < num; i ++)
+            {
+                User user = new User(names[i], passwords[i]);
+                array[i] = (int)users.Insert(user);
+            }
+            return array;
         }
     }
 }

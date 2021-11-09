@@ -15,6 +15,11 @@ namespace lab2
             this.user_id = id;
             this.name = name;
         }
+        public User(string name, string password)
+        {
+            this.password = password;
+            this.name = name;
+        }
         public User()
         {
             this.name = "newUser";
