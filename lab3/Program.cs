@@ -1,12 +1,16 @@
 ﻿using System;
+using static System.Console;
 
 namespace lab3
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            postgresContext context = new postgresContext();
+            ItemRepository repo = new ItemRepository(context);
+            Item item = new Item(12000, true, "Inserted item");
+            WriteLine(repo.Insert(item));
         }
     }
 }
