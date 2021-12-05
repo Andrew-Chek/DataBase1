@@ -6,6 +6,7 @@ namespace lab3
     {
         private NpgsqlConnection connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=2003Lipovetc");
         postgresContext context;
+        private bool addIndex;
         public OrderRepository(postgresContext context)
         {
             this.context = context;
@@ -72,6 +73,45 @@ namespace lab3
             int nChanged = command.ExecuteNonQuery();
             connection.Close();
             return nChanged;
+        }
+        private void AddingIndexes()
+        {
+            this.addIndex = true;
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = @"
+                CREATE INDEX if not exists orders_cost_idx ON orders (cost);
+                CREATE INDEX if not exists orders_usId_idx ON orders (us_id);
+            ";
+            int nChanged = command.ExecuteNonQuery();
+            connection.Close();
+        }
+        public List<Order> GetAllSearch(int[] measures2, int[] measures1)
+        {
+            if(!addIndex)
+            {
+                AddingIndexes();
+            }
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM orders WHERE us_id BETWEEN @c AND @d 
+            AND cost BETWEEN @a AND @b";
+            command.Parameters.AddWithValue("c", measures2[0]);
+            command.Parameters.AddWithValue("d", measures2[1]);
+            command.Parameters.AddWithValue("a", measures1[0]);
+            command.Parameters.AddWithValue("b", measures1[1]);
+            NpgsqlDataReader reader = command.ExecuteReader();
+            List<Order> list = new List<Order>();
+            while(reader.Read())
+            {
+                Order order = new Order();
+                order.OrdId = reader.GetInt32(0);
+                order.Cost = reader.GetDouble(1);
+                order.UsId = reader.GetInt32(2);
+                list.Add(order);
+            }
+            connection.Close();
+            return list;
         }
     }
 }

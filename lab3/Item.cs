@@ -11,6 +11,10 @@ namespace lab3
             Availability = availability;
             Name = name;
         }
+        public Item()
+        {
+            
+        }
 
         public int ItemId { get; set; }
         public double Cost { get; set; }

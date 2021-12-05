@@ -107,10 +107,8 @@ namespace lab3
                     .HasMaxLength(120)
                     .HasColumnName("password");
             });
-
             OnModelCreatingPartial(modelBuilder);
         }
-
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

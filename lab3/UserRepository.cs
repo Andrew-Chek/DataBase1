@@ -5,7 +5,8 @@ namespace lab3
     public class UserRepository
     {
         private NpgsqlConnection connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=2003Lipovetc");
-        postgresContext context;
+        private postgresContext context;
+        private bool addIndex;
         public UserRepository(postgresContext context)
         {
             this.context = context;
@@ -109,6 +110,42 @@ namespace lab3
             int nChanged = command.ExecuteNonQuery();
             connection.Close();
             return nChanged;
+        }
+        public List<User> GetAllSearch(string value)
+        {
+            if(!addIndex)
+            {
+                AddingIndexes();
+            }
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM users WHERE name LIKE '%' || @value || '%' 
+                AND password LIKE '%' || @value || '%'";
+            command.Parameters.AddWithValue("value", value);
+            NpgsqlDataReader reader = command.ExecuteReader();
+            List<User> list = new List<User>();
+            while(reader.Read())
+            {
+                User user = new User();
+                user.UsId = reader.GetInt32(0);
+                user.Name = reader.GetString(1);
+                user.Password = reader.GetString(2);
+                list.Add(user);
+            }
+            connection.Close();
+            return list;
+        }
+        private void AddingIndexes()
+        {
+            this.addIndex = true;
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = @"
+                CREATE INDEX if not exists users_psw_idx ON users using GIN (password);
+                CREATE INDEX if not exists users_name_idx ON users using GIN (name);
+            ";
+            int nChanged = command.ExecuteNonQuery();
+            connection.Close();
         }
     }
 }
