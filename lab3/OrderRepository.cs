@@ -53,6 +53,21 @@ namespace lab3
                 context.SaveChanges();
                 return true;
         }
+        public int InsertOrderItems(int order_id, int item_id)
+        {
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = 
+            @"
+                INSERT INTO orders_items (ord_id, item_id) 
+                VALUES (@order_id, @item_id) RETURNING ord_id;
+            ";
+            command.Parameters.AddWithValue("order_id", order_id);
+            command.Parameters.AddWithValue("item_id", item_id);
+            object newId = (object)command.ExecuteScalar();
+            connection.Close();
+            return (int)newId;
+        }
         public int DeleteByOrIdOrdsIts(int id)
         {
             connection.Open();

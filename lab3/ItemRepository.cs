@@ -49,8 +49,8 @@ namespace lab3
                 return false;
             else
                 itemToUpdate.Name = item.Name;
-            itemToUpdate.Cost = item.Cost;
-            itemToUpdate.Availability = item.Availability;
+                itemToUpdate.Cost = item.Cost;
+                itemToUpdate.Availability = item.Availability;
             context.SaveChanges();
             return true;
         }
@@ -64,18 +64,7 @@ namespace lab3
             connection.Close();
             return nChanged;
         }
-        public int DeleteByOrdersItems(int ord_id, int item_id)
-        {
-            connection.Open();
-            NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM orders_items WHERE ord_id = @id AND item_id = @it_id";
-            command.Parameters.AddWithValue("id", ord_id);
-            command.Parameters.AddWithValue("it_id", item_id);
-            int nChanged = command.ExecuteNonQuery();
-            connection.Close();
-            return nChanged;
-        }
-        public List<Item> GetAllSearch(string value, int[] measures)
+        public List<Item> GetAllSearch(string value, bool av, int[] measures)
         {
             if(!addIndex)
             {
@@ -83,8 +72,9 @@ namespace lab3
             }
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM items WHERE name LIKE '%' || @value || '%' AND cost BETWEEN @a AND @b";
+            command.CommandText = @"SELECT * FROM items WHERE name LIKE '%' || @value || '%' AND availability = @av AND cost BETWEEN @a AND @b";
             command.Parameters.AddWithValue("value", value);
+            command.Parameters.AddWithValue("av", av);
             command.Parameters.AddWithValue("a", measures[0]);
             command.Parameters.AddWithValue("b", measures[1]);
             NpgsqlDataReader reader = command.ExecuteReader();

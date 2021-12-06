@@ -32,24 +32,24 @@ namespace lab3
                 return true;
             }
         }
-        public Order GetById(int id)
+        public User GetById(int id)
         {
-            Order order = context.Orders.Find(id);
-            if (order == null)
+            User user = context.Users.Find(id);
+            if (user == null)
             {
                 throw new NullReferenceException("Cannot find an object with such id.");
             }
             else
-                return order;
+                return user;
         }
-        public bool Update(Order order)
+        public bool Update(User user)
         {
-            Order orderToUpdate = context.Orders.Find(order.OrdId);
-            if (orderToUpdate == null || context.Users.Find(order.UsId) == null)
+            User userToUpdate = context.Users.Find(user.UsId);
+            if (userToUpdate == null || context.Users.Find(user.UsId) == null)
                 return false;
-            else if(orderToUpdate != null && context.Users.Find(order.UsId) != null)
-                orderToUpdate.UsId = order.UsId;
-                orderToUpdate.Cost = order.Cost;
+            else if(userToUpdate != null && context.Users.Find(user.UsId) != null)
+                userToUpdate.Name = user.Name;
+                userToUpdate.Password = user.Password;
                 context.SaveChanges();
                 return true;
         }

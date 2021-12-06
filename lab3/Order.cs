@@ -9,5 +9,9 @@ namespace lab3
         public double Cost { get; set; }
         public int UsId { get; set; }
         public virtual User Us { get; set; }
+        public override string ToString()
+        {
+            return $"Id: {this.OrdId}, Cost: {this.Cost}";
+        }
     }
 }

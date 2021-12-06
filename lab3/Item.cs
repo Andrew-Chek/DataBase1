@@ -15,10 +15,13 @@ namespace lab3
         {
             
         }
-
         public int ItemId { get; set; }
         public double Cost { get; set; }
         public bool Availability { get; set; }
         public string Name { get; set; }
+        public override string ToString()
+        {
+            return $"Id: {this.ItemId}, Name: {this.Name}";
+        }
     }
 }

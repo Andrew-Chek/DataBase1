@@ -15,5 +15,9 @@ namespace lab3
         public string Password { get; set; }
 
         public virtual ICollection<Order> Orders { get; set; }
+        public override string ToString()
+        {
+            return $"Id: {this.UsId}, Name: {this.Name}";
+        }
     }
 }
