@@ -1,4 +1,5 @@
 using Npgsql;
+using static System.Console;
 
 namespace lab3
 {
@@ -7,7 +8,13 @@ namespace lab3
         private NpgsqlConnection connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=2003Lipovetc");
         postgresContext context;
         private bool addIndex;
+        private bool addTrigger;
         public ItemRepository(postgresContext context)
+        {
+            this.context = context;
+            CreateTriggerFunction();
+        }
+        public ItemRepository(postgresContext context, bool val)
         {
             this.context = context;
         }
@@ -44,15 +51,23 @@ namespace lab3
         }
         public bool Update(Item item)
         {
-            Item itemToUpdate = context.Items.Find(item.ItemId);
-            if (itemToUpdate == null)
+            try
+            {
+                Item itemToUpdate = context.Items.Find(item.ItemId);
+                if (itemToUpdate == null)
+                    return false;
+                else
+                    itemToUpdate.Name = item.Name;
+                    itemToUpdate.Cost = item.Cost;
+                    itemToUpdate.Availability = item.Availability;
+                context.SaveChanges();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                WriteLine(ex.Message);
                 return false;
-            else
-                itemToUpdate.Name = item.Name;
-                itemToUpdate.Cost = item.Cost;
-                itemToUpdate.Availability = item.Availability;
-            context.SaveChanges();
-            return true;
+            }
         }
         public int DeleteByItIdOrdsIts(int id)
         {
@@ -69,6 +84,7 @@ namespace lab3
             if(!addIndex)
             {
                 AddingIndexes();
+                addIndex = true;
             }
             connection.Open();
             NpgsqlCommand command = connection.CreateCommand();
@@ -102,6 +118,41 @@ namespace lab3
             ";
             int nChanged = command.ExecuteNonQuery();
             connection.Close();
+        }
+        private void CreateTrigger()
+        {
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = @"CREATE TRIGGER items_afup_trg AFTER UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE afup();";
+            int nChanged = command.ExecuteNonQuery();
+            connection.Close();
+        }
+        private void CreateTriggerFunction()
+        {
+            connection.Open();
+            NpgsqlCommand command = connection.CreateCommand();
+            command.CommandText = 
+            @"
+                CREATE OR REPLACE FUNCTION afup() RETURNS TRIGGER AS $items_afup_trg$
+                    BEGIN
+                        IF (NEW.name IS NULL) THEN
+                            RAISE EXCEPTION 'Name cannot be null';
+                        ELSIF NEW.cost IS NULL THEN 
+                            RAISE EXCEPTION 'Cost cannot be null';
+                        ELSIF NEW.cost < 0 THEN
+                            RAISE EXCEPTION '% cannot have a negative cost', NEW.name;
+                        END IF;
+						RETURN NEW;
+                    END;
+                $items_afup_trg$ language plpgsql;
+            ";
+            int nChanged = command.ExecuteNonQuery();
+            connection.Close();
+            if(!addTrigger)
+            {
+                CreateTrigger();
+                addTrigger = true;
+            }
         }
     }
 }

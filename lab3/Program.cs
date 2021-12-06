@@ -9,7 +9,15 @@ namespace lab3
         public static void Main(string[] args)
         {
             postgresContext context = new postgresContext();
-            ItemRepository items = new ItemRepository(context);
+            ItemRepository items;
+            try
+            {
+                items = new ItemRepository(context);
+            }
+            catch
+            {
+                items = new ItemRepository(context, true);
+            }
             OrderRepository orders = new OrderRepository(context);
             UserRepository users = new UserRepository(context);
             ConsoleLog log = new ConsoleLog(items, orders, users);
